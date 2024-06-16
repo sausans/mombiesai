@@ -1,0 +1,17 @@
+streamlit # ==1.4.0
+openai==0.28.0
+sqlalchemy
+psycopg2-binary  # For PostgreSQL
+requests
+instaloader
+toml
+sentence_transformers
+pinecone
+pytesseract   
+Pillow
+pinecone-client
+opencv-python-headless
+easyocr
+huggingface-hub>=0.23.4,<1.0.0
+torch>=1.10.0
+transformers>=4.19.2
