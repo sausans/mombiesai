@@ -106,7 +106,6 @@ def login():
         user_info["username"] = username
         st.experimental_rerun() #st.rerun()
 
-@st.cache_data
 def chat():
     st.markdown("## Got a crush to reply? Share your screenshot here!")
 
