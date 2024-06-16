@@ -206,9 +206,12 @@ User’s preferred language style: {user_info['lang_style']}
 Any information about the user: {user_info['experience']}
 """
 
+# Define the model name
+model_name = 'sentence-transformers/all-mpnet-base-v2'
+
 @st.cache
 # Load the model from cache or freshly downloaded location
-model = SentenceTransformer(model_name, cache_folder=cache_directory)
+model = SentenceTransformer(model_name)
 print("Model loaded successfully.")
 
 # Attempting to find the real Tesseract executable
