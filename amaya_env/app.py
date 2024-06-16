@@ -104,7 +104,7 @@ def login():
         st.session_state["username"] = username
         user_info["name"] = username
         user_info["username"] = username
-        st.rerun()
+        st.experimental_rerun() #st.rerun()
 
 @st.cache
 def chat():
