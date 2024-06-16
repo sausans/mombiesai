@@ -206,29 +206,7 @@ User’s preferred language style: {user_info['lang_style']}
 Any information about the user: {user_info['experience']}
 """
 
-# Define the cache directory
-cache_directory = os.path.join(os.getcwd(), 'venv', 'model_cache')
-model_name = 'sentence-transformers/all-mpnet-base-v2'
-
-# Transform model_name to a valid directory name if needed
-model_cache_subdir = model_name.replace("/", "_")
-
-# Full path where the model is expected to be cached
-model_cache_path = os.path.join(cache_directory, model_cache_subdir)
-
-# Create the cache directory if it does not exist
-if not os.path.exists(cache_directory):
-    os.makedirs(cache_directory)
-
-# Check if the model is cached
-if os.path.exists(model_cache_path):
-    print(f"Model is already cached at {model_cache_path}. Reusing the cached model.")
-else:
-    print("Model is not cached. Downloading and caching the model.")
-    # This will download and cache the model
-    model = SentenceTransformer(model_name, cache_folder=cache_directory)
-    print("Model downloaded and cached.")
-
+@st.cache
 # Load the model from cache or freshly downloaded location
 model = SentenceTransformer(model_name, cache_folder=cache_directory)
 print("Model loaded successfully.")
