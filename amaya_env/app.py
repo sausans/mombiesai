@@ -13,6 +13,7 @@ from shutil import which
 
 #FUNCTIONS 
 
+@st.cache
 def load_local_secrets():
     secrets_path = '/Users/ahuwel/Desktop/entre_amaya/venv/secrets.toml'
     if os.path.exists(secrets_path):
@@ -33,12 +34,13 @@ def get_base64_image_from_url(url):
     response.raise_for_status()
     return base64.b64encode(response.content).decode('utf-8')
 
-
+@st.cache
 def query_pinecone(embedding, top_k=5):
     query_response = index.query(embedding.tolist(), top_k=top_k, include_metadata=True)
     similar_docs = [match['metadata']['content'] for match in query_response['matches']]
     return similar_docs
 
+@st.cache
 def get_embedding(text):
     embedding = model.encode(text)
     return embedding
@@ -79,12 +81,13 @@ def chain_of_thought_prompting(chat_text, similar_docs):
         st.error(f"Error: {e}")
         return []
 
+@st.cache
 def process_image_and_generate_drafts(image):
     try:
         extracted_text = pytesseract.image_to_string(image, lang='eng')
     except Exception as e:
         st.warning(f"pytesseract failed with error: {e}. Using tesserocr instead.")
-        extracted_text = tesserocr.image_to_text(image)
+        extracted_text = pytesseract.image_to_text(image)
         
     context = extracted_text.strip()
     original_embedding = get_embedding(context)
@@ -103,6 +106,7 @@ def login():
         user_info["username"] = username
         st.rerun()
 
+@st.cache
 def chat():
     st.markdown("## Got a crush to reply? Share your screenshot here!")
 
@@ -164,6 +168,12 @@ You can ask me any advice about love life or ask how to respond to that special 
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
 
+@st.cache
+def load_model():
+    # Load the model from cache or freshly downloaded location
+    model = SentenceTransformer(model_name)
+    return model
+
 # CONFIGURATION
 
 st.set_page_config(page_title="Chat with Amaya", layout="wide")
@@ -209,10 +219,8 @@ Any information about the user: {user_info['experience']}
 # Define the model name
 model_name = 'sentence-transformers/all-mpnet-base-v2'
 
-@st.cache
-# Load the model from cache or freshly downloaded location
-model = SentenceTransformer(model_name)
-print("Model loaded successfully.")
+# Use the function to load the model
+model = load_model()
 
 # Attempting to find the real Tesseract executable
 tesseract_path = which("tesseract")
