@@ -1,4 +1,4 @@
-streamlit==1.4.0
+streamlit#==1.4.0
 openai==0.28.0
 sqlalchemy
 psycopg2-binary  # For PostgreSQL
