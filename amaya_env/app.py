@@ -81,7 +81,7 @@ def chain_of_thought_prompting(chat_text, similar_docs):
         st.error(f"Error: {e}")
         return []
 
-@st.cache_resource
+#@st.cache_resource
 def process_image_and_generate_drafts(image):
     try:
         extracted_text = pytesseract.image_to_string(image, lang='eng')
