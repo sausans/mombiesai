@@ -36,9 +36,11 @@ def get_base64_image_from_url(url):
 
 @st.cache_data
 def query_pinecone(embedding, top_k=5):
-    query_response = index.query(embedding.tolist(), top_k=top_k, include_metadata=True)
+    # Ensure embedding is converted to a list if it's not already, and make the query using keyword arguments
+    query_response = index.query(vector=embedding.tolist(), top_k=top_k, include_metadata=True)
     similar_docs = [match['metadata']['content'] for match in query_response['matches']]
     return similar_docs
+
 
 @st.cache_resource
 def get_embedding(text):
