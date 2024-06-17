@@ -154,19 +154,16 @@ def chat():
 
     uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], key="file_uploader")
 
-    if uploaded_image is not None:
-        image = Image.open(uploaded_image)
-        extracted_text =  extract_text_from_image(image)
-        st.session_state.messages.append({"role": "assistant", "content": "Ok, what is your question?"})
-        if prompt := st.chat_input("What is up? (after image upload)", key="chat_input_after_image"):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
-
-            drafts = generate_drafts(extracted_text, prompt)
-            st.session_state.messages.append({"role": "assistant", "content": "Here are good responses:"})
-            st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
-
+     # Process the uploaded image
+    if uploaded_image:
+        if st.session_state["uploaded_image"] is None:  # New image uploaded
+            st.session_state["uploaded_image"] = uploaded_image
+            image = Image.open(uploaded_image)
+            extracted_text = extract_text_from_image(image)
+            st.session_state["extracted_text"] = extracted_text
+            st.session_state["image_processed"] = True  # Flag that image has been processed
+            st.session_state.messages.append({"role": "assistant", "content": "I've read your text. What would you like to ask?"})
+    
         #st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
 
     st.markdown("## Chatting Time!")
@@ -196,10 +193,17 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
 
     if prompt := st.chat_input("What is up?", key="chat_input"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        with st.chat_message("assistant", avatar=avatar_url):
+                with st.chat_message("user"):
+                    st.markdown(prompt)
+        if "image_processed" in st.session_states:
+            # Answer the user after processing the image
+            drafts = generate_drafts(st.session_state["extracted_text"], prompt)
+            response_text = "\n".join(drafts)
+            st.session_state.messages.append({"role": "assistant", "content": "Here are some suggestions based on your image and question:"})
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+            st.session_state["image_processed"] = False  # Reset the flag
+        else: 
+            with st.chat_message("assistant", avatar=avatar_url):
             response = openai.ChatCompletion.create(
                 model=st.session_state["openai_model"],
                 messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
@@ -208,8 +212,8 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             )
             response_text = response.choices[0].message['content']
             st.markdown(response_text)
-
-        st.session_state.messages.append({"role": "assistant", "content": response_text})
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+            
         save_chat(user_info["username"], prompt, response_text)
 
 @st.cache_resource
