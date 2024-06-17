@@ -9,6 +9,7 @@ from pinecone import Pinecone, ServerlessSpec
 from sentence_transformers import SentenceTransformer
 import shutil
 import pytesseract
+import psycopg2
 from shutil import which
 
 #FUNCTIONS 
