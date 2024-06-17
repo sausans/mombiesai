@@ -205,11 +205,10 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.session_state["image_processed"] = False  # Reset the flag
         else: 
             with st.chat_message("assistant", avatar=avatar_url):
-            response = openai.ChatCompletion.create(
-                model=st.session_state["openai_model"],
-                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                max_tokens=300,
-                temperature=0.7
+                response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
+                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                    max_tokens=300,
+                    temperature=0.7
             )
             response_text = response.choices[0].message['content']
             st.markdown(response_text)
