@@ -193,8 +193,9 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
 
     if prompt := st.chat_input("What is up?", key="chat_input"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-                with st.chat_message("user"):
-                    st.markdown(prompt)
+        with st.chat_message("user"):
+            st.markdown(prompt)
+            
         if "image_processed" in st.session_states:
             # Answer the user after processing the image
             drafts = generate_drafts(st.session_state["extracted_text"], prompt)
