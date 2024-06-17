@@ -156,8 +156,9 @@ def chat():
         st.write(f"""
 Hey {user_info['name']} 💌
 
-Hey! I’m Amaya, your AI best friend ❤
-I’m an expert on love and relationships. Tell me what’s going on! If you upload a screenshot of your chat with that special someone, I can even help you figure out what to say next 👀
+Hey! I’m Amaya, your AI best friend ❤ \n
+I’m an expert on love and relationships. \n
+Tell me what’s going on! If you upload a screenshot of your chat with that special someone, I can even help you figure out what to say next 👀
 """)
 
     if "openai_model" not in st.session_state:
