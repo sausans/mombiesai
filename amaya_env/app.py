@@ -141,9 +141,13 @@ def login():
     username = st.text_input("What's your name? ❤️")
     if st.button("Submit"):
         st.session_state["logged_in"] = True
-        st.session_state["username"] = username
-        user_info["name"] = username
-        user_info["username"] = username
+        st.session_state.user_info = {
+            "username": username,
+            "name": username,
+            "goal": "The user wants to have a friend",
+            "experience": "",
+            "lang_style": "",
+        }
         st.experimental_rerun() #st.rerun()
 
 def chat():
@@ -202,6 +206,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             response_text = "\n".join(drafts)
             st.session_state.messages.append({"role": "assistant", "content": "Here are some suggestions:"})
             #st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
+            st.markdown(response_text)
             st.session_state.messages.append({"role": "assistant", "content": response_text})
             st.session_state["image_processed"] = False  # Reset the flag
         else: 
@@ -215,7 +220,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
                 st.markdown(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})    
        
-        save_chat(user_info["username"], prompt, response_text)
+        save_chat(st.session_state.user_info['username'], prompt, response_text)
 
 @st.cache_resource
 def load_model():
@@ -284,16 +289,7 @@ pc = Pinecone(
 index_name = secrets["pinecone"]["index"]
 
 # Use the index
-index = pc.Index(index_name)
-
-# Set up user info and system role
-user_info = {
-    "name": "",
-    "goal": "The user wants to have a friend",
-    "experience": "",
-    "lang_style": "",
-    "username": ""
-}
+index = pc.Index(index_name) 
 
 # Path to your local avatar image
 image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for_amaya.jpeg" 
@@ -301,10 +297,10 @@ avatar_base64 = get_base64_image_from_url(image_url)
 avatar_url = "💌" #f"data:image/png;base64,{avatar_base64}"
 
 system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great! Whenever someone asks you for advice, you will ask for details and context first before giving them ones. Don't need to give emoji in every replies, use them appropriately. If you notice that the user is going away or not responsive, then you will ask random question related to relationship status, how it is like for those who have couple or are single, or simply silly questions about life in general. Remember to ask the questions and keep the questions short, fun and personal. 
-User’s name: {user_info['name']}
-User’s goal that they need Amaya's help: {user_info['goal']}
-User’s preferred language style: {user_info['lang_style']}
-Any information about the user: {user_info['experience']}
+User’s name: {st.session_state.user_info['name']}
+User’s goal that they need Amaya's help: {st.session_state.user_info['goal']}
+User’s preferred language style: {st.session_state.user_info['lang_style']}
+Any information about the user: {st.session_state.user_info['experience']}
 """
 
 # Define the model name
