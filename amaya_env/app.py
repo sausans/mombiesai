@@ -196,7 +196,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
         with st.chat_message("user"):
             st.markdown(prompt)
             
-        if "image_processed" in st.session_states:
+        if st.session_state.get("image_processed", False):
             # Answer the user after processing the image
             drafts = generate_drafts(st.session_state["extracted_text"], prompt)
             response_text = "\n".join(drafts)
