@@ -13,6 +13,7 @@ import psycopg2
 from sqlalchemy import create_engine, Column, Integer, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 from shutil import which
 
 #FUNCTIONS 
