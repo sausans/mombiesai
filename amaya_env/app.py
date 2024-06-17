@@ -12,7 +12,7 @@ import pytesseract
 import psycopg2
 from sqlalchemy import create_engine, Column, Integer, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker,scoped_session
 from datetime import datetime
 from shutil import which
 
@@ -53,11 +53,18 @@ def get_database_url():
     config_vars = response.json()
     return config_vars.get('DATABASE_URL')
 
-# Example function to save a chat entry
+#  function to save a chat entry
 def save_chat(username, user_message, bot_response):
-    chat_entry = ChatHistory(username = username, user_message=user_message, bot_response=bot_response)
-    session.add(chat_entry)
-    session.commit()
+    session = Session()
+    try:
+        chat_entry = ChatHistory(username=username, user_message=user_message, bot_response=bot_response)
+        session.add(chat_created)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        st.error(f"Database transaction failed: {e}")
+    finally:
+        session.close()
 
 @st.cache_data
 def query_pinecone(embedding, top_k=5):
@@ -241,11 +248,14 @@ conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 # Modify DATABASE_URL for SQLAlchemy
 DATABASE_URL_SQLALCHEMY = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
+
 # Create the SQLAlchemy engine using the modified database URL
 engine = create_engine(DATABASE_URL_SQLALCHEMY)
 
 # Define the base class for declarative class definitions
 Base = declarative_base()
+
+
 
 # Define a class to represent the chat history table
 class ChatHistory(Base):
@@ -260,8 +270,8 @@ class ChatHistory(Base):
 Base.metadata.create_all(engine)
 
 # Create a session to interact with the database
-Session = sessionmaker(bind=engine)
-session = Session()
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
 # Configure Pinecone
 # Initialize Pinecone instance
