@@ -87,7 +87,7 @@ def chain_of_thought_prompting(chat_text, similar_docs, user_question):
         recommendation_context = "\n".join(similar_docs)
         messages = [
             {"role": "system", "content": "You are an expert in love advice. You know how to help people to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood and context, create potential chat responses, and 4. Adjust the potential chat responses based on the identified communication style. Only share the list of potential responses, no need to give the reasons. "},
-            {"role": "user", "content": f"""Read the following chat conversation. If user has specific question, answer them. If not, provide potential responses to the chat conversation:
+            {"role": "user", "content": f"""Read the following chat conversation. If user has specific question, answer them based on Chat Conversation and User's Specific Question. If user doesn't have a specific question, provide potential responses to the chat conversation:
                 
             Chat Conversation:
             {chat_text}
