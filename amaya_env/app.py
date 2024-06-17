@@ -211,10 +211,10 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
                     max_tokens=300,
                     temperature=0.7
             )
-            response_text = response.choices[0].message['content']
-            st.markdown(response_text)
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
-            
+                response_text = response.choices[0].message['content']
+                st.markdown(response_text)
+                st.session_state.messages.append({"role": "assistant", "content": response_text})    
+       
         save_chat(user_info["username"], prompt, response_text)
 
 @st.cache_resource
