@@ -33,6 +33,26 @@ def get_base64_image_from_url(url):
     response = requests.get(url)
     response.raise_for_status()
     return base64.b64encode(response.content).decode('utf-8')
+    
+@st.cache_resource
+def get_database_url():
+    app_name = st.secrets["heroku"]["app_name"]
+    api_key = st.secrets["heroku"]["api_key"]
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Accept': 'application/vnd.heroku+json; version=3'
+    }
+    response = requests.get(f'https://api.heroku.com/apps/{app_name}/config-vars', headers=headers)
+    if response.status_code != 200:
+        raise ValueError(f"Error fetching config vars: {response.text}")
+    config_vars = response.json()
+    return config_vars.get('DATABASE_URL')
+
+# Example function to save a chat entry
+def save_chat(username, user_message, bot_response):
+    chat_entry = ChatHistory(username = username, user_message=user_message, bot_response=bot_response)
+    session.add(chat_entry)
+    session.commit()
 
 @st.cache_data
 def query_pinecone(embedding, top_k=5):
@@ -40,7 +60,6 @@ def query_pinecone(embedding, top_k=5):
     query_response = index.query(vector=embedding.tolist(), top_k=top_k, include_metadata=True)
     similar_docs = [match['metadata']['content'] for match in query_response['matches']]
     return similar_docs
-
 
 @st.cache_resource
 def get_embedding(text):
@@ -109,7 +128,7 @@ def login():
         st.experimental_rerun() #st.rerun()
 
 def chat():
-    st.markdown("## Got a crush to reply? Share your screenshot here!")
+    #st.markdown("## Got a crush to reply? Share your screenshot here!")
 
     if "uploaded_image" not in st.session_state:
         st.session_state["uploaded_image"] = None
@@ -129,12 +148,11 @@ def chat():
 
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
-        st.write(f"""
+        st.write_stream(f"""
 Hey {user_info['name']} 💌
 
-I am Amaya, an expert virtual friend in love! I have been trained with so many healthy and cute love stories from the whole world, let me share some with you! 📚
-
-You can ask me any advice about love life or ask how to respond to that special someone 💞
+Hey! I’m Amaya, your AI best friend ❤
+I’m an expert on love and relationships. Tell me what’s going on! If you upload a screenshot of your chat with that special someone, I can even help you figure out what to say next 👀
 """)
 
     if "openai_model" not in st.session_state:
@@ -165,9 +183,10 @@ You can ask me any advice about love life or ask how to respond to that special 
                 temperature=0.7
             )
             response_text = response.choices[0].message['content']
-            st.markdown(response_text)
+            st.write_stream(response_text) #st.markdown(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
+        save_chat(user_info["username"], prompt, response)
 
 @st.cache_resource
 def load_model():
@@ -185,6 +204,45 @@ secrets = get_secrets(mode)
 # Configure OpenAI API key
 OPENAI_API_KEY = secrets["openai"]["api_key"]
 openai.api_key = OPENAI_API_KEY
+
+#Configure Database
+# Get the database URL from Heroku
+DATABASE_URL = get_database_url()
+
+# Print DATABASE_URL for debugging purposes
+print(f"DATABASE_URL: {DATABASE_URL}")
+
+# Check if DATABASE_URL is None (meaning it is not set)
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
+# Use the original DATABASE_URL for psycopg2
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+# Modify DATABASE_URL for SQLAlchemy
+DATABASE_URL_SQLALCHEMY = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+
+# Create the SQLAlchemy engine using the modified database URL
+engine = create_engine(DATABASE_URL_SQLALCHEMY)
+
+# Define the base class for declarative class definitions
+Base = declarative_base()
+
+# Define a class to represent the chat history table
+class ChatHistory(Base):
+    __tablename__ = 'chat_history'
+    id = Column(Integer, primary_key=True)
+    username = Column(Text)
+    user_message = Column(Text)
+    bot_response = Column(Text)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+# Create the table in the database
+Base.metadata.create_all(engine)
+
+# Create a session to interact with the database
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # Configure Pinecone
 # Initialize Pinecone instance
@@ -210,7 +268,7 @@ image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for
 avatar_base64 = get_base64_image_from_url(image_url)
 avatar_url = "💌" #f"data:image/png;base64,{avatar_base64}"
 
-system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great!.
+system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great! Whenever someone asks you for advice, you will ask for details and context first before giving them ones. Don't need to give emoji in every replies, use them appropriately. 
 User’s name: {user_info['name']}
 User’s goal that they need Amaya's help: {user_info['goal']}
 User’s preferred language style: {user_info['lang_style']}
@@ -241,7 +299,7 @@ if "username" not in st.session_state:
 if st.session_state["logged_in"]:
     user_info["username"] = st.session_state["username"]
     user_info["name"] = st.session_state["username"]
-    st.write(f"# Tell me anything! What you say stays here :)")
+    #st.write(f"# Tell me anything! What you say stays here :)")
     chat()
 else:
     login()
