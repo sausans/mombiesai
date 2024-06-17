@@ -58,7 +58,7 @@ def save_chat(username, user_message, bot_response):
     session = Session()
     try:
         chat_entry = ChatHistory(username=username, user_message=user_message, bot_response=bot_response)
-        session.add(chat_created)
+        session.add(chat_entry)
         session.commit()
     except Exception as e:
         session.rollback()
