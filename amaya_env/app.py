@@ -153,7 +153,7 @@ def chat():
 
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
-        st.write_stream(f"""
+        st.write(f"""
 Hey {user_info['name']} 💌
 
 Hey! I’m Amaya, your AI best friend ❤
@@ -188,7 +188,7 @@ I’m an expert on love and relationships. Tell me what’s going on! If you upl
                 temperature=0.7
             )
             response_text = response.choices[0].message['content']
-            st.write_stream(response_text) #st.markdown(response_text)
+            st.markdown(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
         save_chat(user_info["username"], prompt, response)
