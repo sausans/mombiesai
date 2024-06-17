@@ -173,7 +173,7 @@ def chat():
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
         st.write(f"""
-Hey {user_info['name']} 💌
+Hey {st.session_state.user_info['username']} 💌
 
 Hey! I’m Amaya, your AI best friend ❤ \n
 I’m an expert on love and relationships. \n
