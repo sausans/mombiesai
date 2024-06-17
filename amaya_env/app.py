@@ -72,7 +72,7 @@ def get_embedding(text):
     return embedding
 
 
-def chain_of_thought_prompting(chat_text, similar_docs):
+def chain_of_thought_prompting(chat_text, similar_docs, user_question):
     """
     Generate potential responses for a chat conversation using OpenAI API and Chain of Thought prompting.
     """
@@ -80,10 +80,13 @@ def chain_of_thought_prompting(chat_text, similar_docs):
         recommendation_context = "\n".join(similar_docs)
         messages = [
             {"role": "system", "content": "You are an expert in love advice. You know how to help people to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood and context, create potential chat responses, and 4. Adjust the potential chat responses based on the identified communication style. Only share the list of potential responses, no need to give the reasons. If you notice that the user is going away or not responsive, then you will ask random question related to relationship status, how it is like for those who have couple or are single, or simply silly questions about life in general. Remember to ask the questions and keep the questions short, fun and personal."},
-            {"role": "user", "content": f"""Read the following chat conversation and provide potential responses:
+            {"role": "user", "content": f"""Read the following chat conversation. If user has specific question, answer them. If not, provide potential responses to the chat conversation:
                 
             Chat Conversation:
             {chat_text}
+
+            User's Specific Question: 
+            {user_question}
 
             Recommendations:
             {recommendation_context}
@@ -107,8 +110,7 @@ def chain_of_thought_prompting(chat_text, similar_docs):
         st.error(f"Error: {e}")
         return []
 
-#@st.cache_resource
-def process_image_and_generate_drafts(image):
+def extract_text_from_image(image):
     try:
         extracted_text = pytesseract.image_to_string(image, lang='eng')
     except Exception as e:
@@ -116,11 +118,16 @@ def process_image_and_generate_drafts(image):
         extracted_text = pytesseract.image_to_text(image)
         
     context = extracted_text.strip()
+
+    return context
+    
+#@st.cache_resource
+def generate_drafts(context, user_question):
     original_embedding = get_embedding(context)
     rec_docs = query_pinecone(original_embedding)
-    draft_responses = chain_of_thought_prompting(context, rec_docs)
+    draft_responses = chain_of_thought_prompting(context, rec_docs, user_question)
 
-    return context, draft_responses
+    return draft_responses
 
 def login():
     st.title("Chat with Amaya")
@@ -142,7 +149,13 @@ def chat():
 
     if uploaded_image is not None:
         image = Image.open(uploaded_image)
-        extracted_text, drafts =  process_image_and_generate_drafts(image)
+        extracted_text =  extract_text_from_image(image)
+        st.session_state.messages.append({"role": "assistant", "content": "Ok, what is your question?"})
+        if prompt := st.chat_input("What is up?", key="chat_input"):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+        drafts = generate_drafts(extracted_text, prompt)
 
         #st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
 
