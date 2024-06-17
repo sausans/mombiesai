@@ -79,7 +79,7 @@ def chain_of_thought_prompting(chat_text, similar_docs, user_question):
     try:
         recommendation_context = "\n".join(similar_docs)
         messages = [
-            {"role": "system", "content": "You are an expert in love advice. You know how to help people to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood and context, create potential chat responses, and 4. Adjust the potential chat responses based on the identified communication style. Only share the list of potential responses, no need to give the reasons. If you notice that the user is going away or not responsive, then you will ask random question related to relationship status, how it is like for those who have couple or are single, or simply silly questions about life in general. Remember to ask the questions and keep the questions short, fun and personal."},
+            {"role": "system", "content": "You are an expert in love advice. You know how to help people to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood and context, create potential chat responses, and 4. Adjust the potential chat responses based on the identified communication style. Only share the list of potential responses, no need to give the reasons. "},
             {"role": "user", "content": f"""Read the following chat conversation. If user has specific question, answer them. If not, provide potential responses to the chat conversation:
                 
             Chat Conversation:
@@ -151,18 +151,18 @@ def chat():
         image = Image.open(uploaded_image)
         extracted_text =  extract_text_from_image(image)
         st.session_state.messages.append({"role": "assistant", "content": "Ok, what is your question?"})
-        if prompt := st.chat_input("What is up?", key="chat_input"):
+    
+    if st.session_state["uploaded_image"] is not None:
+        if prompt := st.chat_input("What is up? (after image upload)", key="chat_input_after_image"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
-        drafts = generate_drafts(extracted_text, prompt)
 
-        #st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
-
-        # Append the drafts after the last chat message
-        if "messages" in st.session_state:
+            drafts = generate_drafts(extracted_text, prompt)
             st.session_state.messages.append({"role": "assistant", "content": "Here are good responses:"})
             st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
+
+        #st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
 
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
@@ -287,7 +287,7 @@ image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for
 avatar_base64 = get_base64_image_from_url(image_url)
 avatar_url = "💌" #f"data:image/png;base64,{avatar_base64}"
 
-system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great! Whenever someone asks you for advice, you will ask for details and context first before giving them ones. Don't need to give emoji in every replies, use them appropriately. 
+system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great! Whenever someone asks you for advice, you will ask for details and context first before giving them ones. Don't need to give emoji in every replies, use them appropriately. If you notice that the user is going away or not responsive, then you will ask random question related to relationship status, how it is like for those who have couple or are single, or simply silly questions about life in general. Remember to ask the questions and keep the questions short, fun and personal. 
 User’s name: {user_info['name']}
 User’s goal that they need Amaya's help: {user_info['goal']}
 User’s preferred language style: {user_info['lang_style']}
