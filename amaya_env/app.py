@@ -212,7 +212,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.markdown(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
-        save_chat(user_info["username"], prompt, response)
+        save_chat(user_info["username"], prompt, response_text)
 
 @st.cache_resource
 def load_model():
