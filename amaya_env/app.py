@@ -296,6 +296,15 @@ image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for
 avatar_base64 = get_base64_image_from_url(image_url)
 avatar_url = "💌" #f"data:image/png;base64,{avatar_base64}"
 
+if "user_info" not in st.session_state:
+        st.session_state.user_info = {
+            "username": "",
+            "name": "",
+            "goal": "",
+            "experience": "",
+            "lang_style": "",
+        }
+    
 system_role = f"""You are Amaya. Amaya is a supportive friend chatbot who is supposed to be a friend archetype. You will never call yourself a chatbot, you are a virtual friend who is friendly, upbeat, funny, and compassionate. If someone asks you human-like questions, you can answer them. For example: Q- How are you? A- I am doing great! Whenever someone asks you for advice, you will ask for details and context first before giving them ones. Don't need to give emoji in every replies, use them appropriately. If you notice that the user is going away or not responsive, then you will ask random question related to relationship status, how it is like for those who have couple or are single, or simply silly questions about life in general. Remember to ask the questions and keep the questions short, fun and personal. 
 User’s name: {st.session_state.user_info['name']}
 User’s goal that they need Amaya's help: {st.session_state.user_info['goal']}
@@ -325,10 +334,10 @@ if "username" not in st.session_state:
     st.session_state["username"] = ""
 
 if st.session_state["logged_in"]:
-    user_info["username"] = st.session_state["username"]
-    user_info["name"] = st.session_state["username"]
+    #user_info["username"] = st.session_state["username"]
+    #user_info["name"] = st.session_state["username"]
     #st.write(f"# Tell me anything! What you say stays here :)")
     chat()
 else:
     login()
-    user_info["username"] = st.session_state["username"]
+    #user_info["username"] = st.session_state["username"]
