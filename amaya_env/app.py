@@ -158,8 +158,6 @@ def chat():
         image = Image.open(uploaded_image)
         extracted_text =  extract_text_from_image(image)
         st.session_state.messages.append({"role": "assistant", "content": "Ok, what is your question?"})
-    
-    if st.session_state["uploaded_image"] is not None:
         if prompt := st.chat_input("What is up? (after image upload)", key="chat_input_after_image"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
