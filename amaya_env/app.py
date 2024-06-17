@@ -10,6 +10,9 @@ from sentence_transformers import SentenceTransformer
 import shutil
 import pytesseract
 import psycopg2
+from sqlalchemy import create_engine, Column, Integer, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from shutil import which
 
 #FUNCTIONS 
