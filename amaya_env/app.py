@@ -157,16 +157,16 @@ def chat():
     #    st.session_state["uploaded_image"] = None
 
     #uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], key="file_uploader")
-    if "uploader_key" not in st.session_state:
+    if "uploader_image" not in st.session_state:
         st.session_state["uploader_key"] = 1
     
-    uploaded_file = st.file_uploader(
+    uploaded_image = st.file_uploader(
         "Please upload a screenshot of your chat",
         type=["jpg", "jpeg", "png"],
         key=st.session_state["uploader_key"],
     )
     
-    if uploaded_file is not None:
+    if uploaded_image is not None:
         with st.spinner("Processing"):
             sleep(3)
     
