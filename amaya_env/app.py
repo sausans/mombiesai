@@ -165,6 +165,7 @@ def chat():
             extracted_text = extract_text_from_image(image)
             extracted_text_for_api = "Here is extracted message from the screenshot:\n" + extracted_text
             st.session_state["extracted_text"] = extracted_text
+            st.session_state.messages.insert(0, {"role": "system", "content": extracted_text_for_api})
             st.session_state["image_processed"] = True  # Flag that image has been processed
             st.session_state.messages.append({"role": "assistant", "content": "I've read your text. What would you like to ask?"})
     
@@ -203,7 +204,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
         if st.session_state.get("image_processed", False):
             # Answer the user after processing the image
             drafts = generate_drafts(st.session_state["extracted_text"], prompt)
-            response_text = drafts
+            response_text = "\n".join(drafts)
             #response_text = "Here are some suggestions:\n" + "\n".join(drafts)
             #st.session_state.messages.append({"role": "assistant", "content": "Here are some suggestions:"})
             #st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
