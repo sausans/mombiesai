@@ -163,7 +163,7 @@ def chat():
             st.session_state["uploaded_image"] = uploaded_image
             image = Image.open(uploaded_image)
             extracted_text = extract_text_from_image(image)
-            extracted_text_for_api = "Here is extracted message from the screenshot:\n" + extracted_text
+            extracted_text_for_api = "Here is extracted message from the screenshot. This is just for your reference if user asked, no need to respond right away:\n" + extracted_text
             st.session_state["extracted_text"] = extracted_text
             st.session_state.messages.insert(0, {"role": "system", "content": extracted_text_for_api})
             st.session_state["image_processed"] = True  # Flag that image has been processed
