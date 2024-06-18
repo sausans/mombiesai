@@ -86,7 +86,7 @@ def chain_of_thought_prompting(chat_text, similar_docs, user_question):
     try:
         recommendation_context = "\n".join(similar_docs)
         messages = [
-            {"role": "system", "content": "You are an expert in love advice. You know how to help people to go through their love journey - either by giving them advices based on chat conversation they shared or give advices on how to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood, context, and the user’s question, answer the them accordingly."},
+            {"role": "system", "content": "You are an expert in love advice. You know how to help people to go through their love journey - either by giving them advices based on chat conversation they shared or give advices on how to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood, context, and the user’s question, answer the them accordingly. Keep the answer short and personal."},
             {"role": "user", "content": f"""Read the following chat conversation, user's specific question, and recommendation:                
             Chat Conversation:
             {chat_text}
@@ -165,7 +165,6 @@ def chat():
             extracted_text = extract_text_from_image(image)
             extracted_text_for_api = "Here is extracted message from the screenshot:\n" + extracted_text
             st.session_state["extracted_text"] = extracted_text
-            st.session_state.messages.insert(0, {"role": "system", "content": extracted_text_for_api})
             st.session_state["image_processed"] = True  # Flag that image has been processed
             st.session_state.messages.append({"role": "assistant", "content": "I've read your text. What would you like to ask?"})
     
@@ -204,13 +203,15 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
         if st.session_state.get("image_processed", False):
             # Answer the user after processing the image
             drafts = generate_drafts(st.session_state["extracted_text"], prompt)
-            response_text = "Here are some suggestions:\n" + "\n".join(drafts)
+            response_text = drafts
+            #response_text = "Here are some suggestions:\n" + "\n".join(drafts)
             #st.session_state.messages.append({"role": "assistant", "content": "Here are some suggestions:"})
             #st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
             st.markdown(response_text)
             st.session_state.messages.append({"role": "assistant", "content": response_text})
             st.session_state["image_processed"] = False  # Reset the flag
             st.session_state["uploaded_image"] = None
+            uploaded_image = None 
         else: 
             with st.chat_message("assistant", avatar=avatar_url):
                 response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
