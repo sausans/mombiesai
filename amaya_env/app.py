@@ -135,9 +135,89 @@ def generate_drafts(context, user_question):
 
     return draft_responses
 
-def login():
+#def login():
     st.title("Chat with Amaya")
     username = st.text_input("What's your name? ❤️")
+    if st.button("Submit"):
+        st.session_state["logged_in"] = True
+        st.session_state.user_info = {
+            "username": username,
+            "name": username,
+            "goal": "The user wants to have a friend",
+            "experience": "",
+            "lang_style": "",
+        }
+        st.experimental_rerun() #st.rerun()
+
+def login():
+    # CSS to load the Pacifico font using @font-face
+    Pacifico_css = """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+    h1 {
+    font-family: 'Pacifico', cursive;
+    }
+    </style>
+    """
+    # Inject CSS
+    st.markdown(Pacifico_css, unsafe_allow_html=True)
+
+    #CSS for background gradient and div styles as well as text alignment
+    background_css = """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-image: linear-gradient(#F4DCD0, #E7C1CE, #C9BBC8, #B6B3C4);
+    }
+
+    [data-testid="stHeader"] {
+        background-color: rgba(0,0,0,0);
+    }
+
+    input[type="text"] {
+        background-color: #F4DCD0;
+        position: relative;
+        text-align: center;
+        font-size: 20px;
+        width: 500px;
+        margin: 0 auto;
+        display: block;
+        padding: 10px;
+        border: none;
+        box-sizing: border-box;
+    }
+
+    [data-testid="stTextInput"] {
+        padding: 0;
+    }
+
+    [data-testid="stButton"] {
+        position: relative;
+        text-align: center;
+        bottom: -3rem;
+    }
+    </style>
+    """
+    #Inject CSS for background gradient and div styles
+    st.markdown(background_css, unsafe_allow_html=True)
+
+    #All the text on the page
+    with st.container():
+        st.markdown('<div class="container">', unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; position: relative; top: -5rem; font-weight: bolder; font-size: 70px;'>Amaya</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -5rem; font-size: 20px'>Your AI best friend & relationship guru</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; position: relative;  font-weight: bold; font-size: 28px;'>😘 Dating?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -1rem; font-size: 20px;'>Get expert advice, or ask Amaya what to text back!</p>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; position: relative;  font-weight: bold; font-size: 28px;'>😍 In a relationship?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -1rem;font-size: 20px;'>Amaya can help you build a stronger relationship.</p>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.85rem; position: absolute;'> Conversations with Amaya stay private, always. </div>",
+        unsafe_allow_html=True)
+
+        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.9rem; position: absolute;'> Copyright Amaya 2024. </div>",
+        unsafe_allow_html=True)
+
+    username = st.text_input(label=("Name"), label_visibility="hidden",placeholder=("Your Name"), value=None)
+
     if st.button("Submit"):
         st.session_state["logged_in"] = True
         st.session_state.user_info = {
