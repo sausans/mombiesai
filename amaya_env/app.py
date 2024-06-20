@@ -296,8 +296,8 @@ index_name = secrets["pinecone"]["index"]
 index = pc.Index(index_name) 
 
 # Path to your local avatar image
-image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for_amaya.jpeg" 
-avatar_base64 = get_base64_image_from_url(image_url)
+#image_url = "https://raw.githubusercontent.com/sausans/amaya/main/venv/maria_for_amaya.jpeg" 
+#avatar_base64 = get_base64_image_from_url(image_url)
 avatar_url = "💌" #f"data:image/png;base64,{avatar_base64}"
 
 if "user_info" not in st.session_state:
