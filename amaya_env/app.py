@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker,scoped_session
 from datetime import datetime
 from shutil import which
 
-#FUNCTIONS 
+#FUNCTIONS
 
 @st.cache_data
 def load_local_secrets():
