@@ -176,7 +176,8 @@ def login():
 
     input[type="text"] {
         background-color: #F4DCD0;
-        color: #000000;
+        color: #000000 !important;
+        webkit-text-fill-color: #000000; /* for safari */
         outline: none;
         text-align: center;
         font-size: 20px;
