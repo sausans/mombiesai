@@ -176,21 +176,11 @@ def login():
 
     input[type="text"] {
         background-color: #F4DCD0;
-        position: relative;
+        color: #000000;
+        outline: none;
         text-align: center;
         font-size: 20px;
-        width: 500px;
-        margin: 0 auto;
-        display: block;
-        padding: 10px;
-        border: none;
-        box-sizing: border-box;
     }
-
-    [data-testid="stTextInput"] {
-        padding: 0;
-    }
-
     [data-testid="stButton"] {
         position: relative;
         text-align: center;
