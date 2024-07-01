@@ -116,6 +116,37 @@ def chain_of_thought_prompting(chat_text, similar_docs, user_question):
         st.error(f"Error: {e}")
         return []
 
+def chain_of_thoughts_relationship_advice(user_preferences, relationship_signs):
+    try:
+        messages = [
+            {"role": "system", "content": "You are an expert in love advice. You know how to help people to go through their love journey - either by giving them advices based on chat conversation they shared or give advices on how to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood, context, and the user’s question, answer them accordingly. Keep the answer short and personal."},
+            {"role": "user", "content": f"""Evaluate the following aspects to determine if someone is right for me or worth pursuing:
+
+            What I want in a guy:
+            {user_preferences}
+
+            Signs of a committed relationship:
+            {relationship_signs}
+
+            Based on the above criteria, please provide a detailed analysis and advice.
+            """}
+        ]
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=messages,
+            max_tokens=300,
+            temperature=0.7
+        )
+        
+        advice = response.choices[0].message['content'].strip()
+
+        return advice
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return []
+
 def extract_text_from_image(image):
     try:
         extracted_text = pytesseract.image_to_string(image, lang='eng')
@@ -221,25 +252,20 @@ def login():
         st.experimental_rerun() #st.rerun()
 
 def chat():
-    #st.markdown("## Got a crush to reply? Share your screenshot here!")
-
     if "uploaded_image" not in st.session_state:
         st.session_state["uploaded_image"] = None
 
     uploaded_image = st.file_uploader("Upload your chat screenshot here for love advice!", type=["png", "jpg", "jpeg"], key="file_uploader")
 
-     # Process the uploaded image
     if uploaded_image:
-        if st.session_state["uploaded_image"] is None:  # New image uploaded
+        if st.session_state["uploaded_image"] is None:
             st.session_state["uploaded_image"] = uploaded_image
             image = Image.open(uploaded_image)
             extracted_text = extract_text_from_image(image)
             st.session_state["extracted_text"] = extracted_text
-            st.session_state["image_processed"] = True  # Flag that image has been processed
+            st.session_state["image_processed"] = True
             st.session_state.messages.append({"role": "assistant", "content": "I've read your text. What would you like to ask?"})
     
-        #st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
-
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
         st.write(f"""
@@ -271,31 +297,40 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.markdown(prompt)
             
         if st.session_state.get("image_processed", False):
-            # Answer the user after processing the image
             drafts = generate_drafts(st.session_state["extracted_text"], prompt)
             extracted_text_for_api = "Here is extracted message from the screenshot. This is just for your reference if user asked, no need to respond right away:\n" + st.session_state["extracted_text"]
             st.session_state.messages.insert(0, {"role": "system", "content": extracted_text_for_api})
             response_text = "\n".join(drafts)
-            #response_text = "Here are some suggestions:\n" + "\n".join(drafts)
-            #st.session_state.messages.append({"role": "assistant", "content": "Here are some suggestions:"})
-            #st.session_state.messages.append({"role": "assistant", "content": "\n".join(drafts)})
             st.markdown(response_text)
             st.session_state.messages.append({"role": "assistant", "content": response_text})
-            st.session_state["image_processed"] = False  # Reset the flag
-            #st.session_state["uploaded_image"] = None
+            st.session_state["image_processed"] = False
             
-        else: 
-            with st.chat_message("assistant", avatar=avatar_url):
-                response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
-                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                    max_tokens=300,
-                    temperature=0.7
-            )
-                response_text = response.choices[0].message['content']
-                st.markdown(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})    
+        else:
+            user_preferences = None
+            relationship_signs = None
+
+            if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
+                user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
+                relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
+
+                if st.button("Get Advice"):
+                    advice = chain_of_thoughts_relationship_advice(user_preferences, relationship_signs)
+                    st.session_state.messages.append({"role": "assistant", "content": advice})
+                    with st.chat_message("assistant", avatar=avatar_url):
+                        st.markdown(advice)
+            else:
+                with st.chat_message("assistant", avatar=avatar_url):
+                    response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
+                        messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                        max_tokens=300,
+                        temperature=0.7
+                    )
+                    response_text = response.choices[0].message['content']
+                    st.markdown(response_text)
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})    
        
         save_chat(st.session_state.user_info['username'], prompt, response_text)
+
 
 @st.cache_resource
 def load_model():
