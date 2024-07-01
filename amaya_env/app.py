@@ -312,12 +312,13 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
                 user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
                 relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
-
+                response_text = "System waits for user's input"
                 if st.button("Get Advice"):
                     advice = chain_of_thoughts_relationship_advice(user_preferences, relationship_signs)
                     st.session_state.messages.append({"role": "assistant", "content": advice})
                     with st.chat_message("assistant", avatar=avatar_url):
                         st.markdown(advice)
+                    response_text = advice
             else:
                 with st.chat_message("assistant", avatar=avatar_url):
                     response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
