@@ -306,7 +306,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.session_state["image_processed"] = False
             
         else:
-             if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
+            if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
                     st.session_state.user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
                     st.session_state.relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
     
