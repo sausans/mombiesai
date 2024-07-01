@@ -306,26 +306,26 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.session_state["image_processed"] = False
             
         else:
-             if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
-                    st.session_state.user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
-                    st.session_state.relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
-    
-                    if st.button("Get Advice"):
-                        advice = chain_of_thoughts_relationship_advice(st.session_state.user_preferences, st.session_state.relationship_signs)
-                        st.session_state.messages.append({"role": "assistant", "content": advice})
-                        with st.chat_message("assistant", avatar=avatar_url):
-                            st.markdown(advice)
-                        response_text = advice
-                else:
+         if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
+                st.session_state.user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
+                st.session_state.relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
+
+                if st.button("Get Advice"):
+                    advice = chain_of_thoughts_relationship_advice(st.session_state.user_preferences, st.session_state.relationship_signs)
+                    st.session_state.messages.append({"role": "assistant", "content": advice})
                     with st.chat_message("assistant", avatar=avatar_url):
-                        response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
-                            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                            max_tokens=300,
-                            temperature=0.7
-                        )
-                        response_text = response.choices[0].message['content']
-                        st.markdown(response_text)
-                        st.session_state.messages.append({"role": "assistant", "content": response_text})     
+                        st.markdown(advice)
+                    response_text = advice
+            else:
+                with st.chat_message("assistant", avatar=avatar_url):
+                    response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
+                        messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                        max_tokens=300,
+                        temperature=0.7
+                    )
+                    response_text = response.choices[0].message['content']
+                    st.markdown(response_text)
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})     
        
         save_chat(st.session_state.user_info['username'], prompt, response_text)
 
