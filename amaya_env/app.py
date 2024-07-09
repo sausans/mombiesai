@@ -228,6 +228,10 @@ def query_personality_model(text, model="mistralai/Mixtral-8x7B-Instruct-v0.1"):
     # Construct payload
     payload = {
         "inputs": text,
+        "parameters": {
+            "max_length": max_length,  # Control the maximum length of the response
+            "num_return_sequences": 1  # Ensure only one response is generated
+        },
         "options": {
             "wait_for_model": True
         }
