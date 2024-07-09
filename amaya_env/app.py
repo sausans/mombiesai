@@ -270,10 +270,14 @@ def generate_response_with_personality(response_text):
     response_with_personality_raw = query_personality_model(prompt_for_mixtral)
     response_with_personality = extract_response_from_personality_model(response_with_personality_raw)
     
-    if'No response generated' in response_with_personality: 
+    # Remove or modify the "Transformed:" label here
+    if 'No response generated' in response_with_personality: 
         return response_text
     else:
-        return response_with_personality
+        # Example of removing or modifying the output
+        # Assuming "Transformed: " starts the actual response
+        cleaned_response = response_with_personality.replace("Transformed: ", "").strip()
+        return cleaned_response
     
 def login():
     # CSS to load the Pacifico font using @font-face
