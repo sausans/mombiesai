@@ -273,7 +273,7 @@ def clean_up_final_output(display_text):
         r"\s*\]\]\s*": "",
         r"-+\s*": "",  # Remove dashed lines
         r"\s*End of\s*": "",  # Remove 'End of'
-        r"\n": " "  # Replace new lines with spaces to maintain continuity
+        r"\n": " ",  # Replace new lines with spaces to maintain continuity
         r"\s*\[\[\s*": "",  # Remove placeholder brackets
     }
     
