@@ -270,7 +270,7 @@ def clean_up_final_output(display_text):
         "transformed:": "",
         "Amaya's response:": "",
         r"\s*\[\[\s*": "",  # Assuming [[ is the pattern to remove tabs/boxes
-        r"\s*\]\]\s*": ""
+        r"\s*\]\]\s*": "",
         r"-+\s*": "",  # Remove dashed lines
         r"\s*End of\s*": "",  # Remove 'End of'
         r"\n": " "  # Replace new lines with spaces to maintain continuity
@@ -281,8 +281,7 @@ def clean_up_final_output(display_text):
     for pattern, replacement in patterns.items():
         clean_text = re.sub(pattern, replacement, display_text)
 
-    return text.strip()
-    return clean_text
+    return clean_text.strip()
 
 
 def generate_response_with_personality(response_text):
