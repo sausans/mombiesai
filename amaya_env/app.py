@@ -111,10 +111,10 @@ def create_prompt(current_content):
     6. Goal: Desiring committed relationships and understanding of commitment challenges.
 
     ### Example of Language Style Transformation:
-    - Original: "Hi, I am doing well thanks for asking! How about you?"
-    - Transformed: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
+    - Input: "Hi, I am doing well thanks for asking! How about you?"
+    - Output: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
 
-    ### Start of Transformation:
+    ### Start of Output:
     """
 
 
@@ -249,12 +249,14 @@ def extract_response_from_personality_model(api_response):
 
     if generated_text:
         # Split on start delimiter
-        parts = generated_text.split("### Start of Transformation:")
+        parts = generated_text.split("### Start of Output:")
         if len(parts) > 1:
             # Further processing to remove unwanted trailing text
             transformed_text = parts[1].strip()
             # Remove any text after an "End of Transformation:" marker
-            final_text = transformed_text.split("### End of Transformation:")[0].strip()
+            final_text = transformed_text.split("### End of Output:")[0].strip()
+            final_text.replace("### End of Output:","")
+            final_text.replace("### Start of Output:","")
             return final_text
         else:
             return "Transformation delimiter not found."
@@ -266,7 +268,7 @@ def extract_response_from_personality_model(api_response):
 
 def clean_up_final_output(display_text):
     # Remove any residual labels or formatting issues
-    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("#","").strip()
+    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("Output","").replace("#","").strip()
     return clean_text
 
 
