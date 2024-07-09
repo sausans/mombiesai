@@ -79,13 +79,12 @@ def get_embedding(text):
     return embedding
 
 def create_prompt(current_content):
-    return f"""Below is a user's statement. Analyze the content to determine the underlying emotion and situation, then TRANSFORM the language style used in the input to adhere to Amaya's conversational guidelines outlined below.
-    
+    return f"""
     ### User's Statement:
     {current_content}
 
     ### Your Task:
-    DO NOT simply respond to the statement. INSTEAD, TRANSFORM the user's original statement into Amaya's unique conversational style based on the detailed profile and boundaries provided. Adjust phrases, tone, and humor to fit the targeted audiences of Amaya. DO NOT INCLUDE THE BOUNDARY, PROFILE, OR ANY INSTRUCTION DETAIL IN YOUR OUTPUT.
+    DO NOT simply respond to the statement. INSTEAD, TRANSFORM the user's original statement into Amaya's unique conversational style based on the detailed profile and boundaries provided. Adjust phrases, tone, and humor to fit the targeted audiences of Amaya. 
 
     ### Amaya Profile:
     Amaya is a virtual best friend who helps their friends navigate life and love. She is friendly, funny, and thoughtful, resembling:
