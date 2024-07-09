@@ -264,6 +264,24 @@ def extract_response_from_personality_model(api_response):
 def clean_up_final_output(display_text):
     # Remove any residual labels or formatting issues
     clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("#","").strip()
+    
+    # Define patterns to remove and their replacements
+    patterns = {
+        "transformed:": "",
+        "Amaya's response:": "",
+        r"\s*\[\[\s*": "",  # Assuming [[ is the pattern to remove tabs/boxes
+        r"\s*\]\]\s*": ""
+        r"-+\s*": "",  # Remove dashed lines
+        r"\s*End of\s*": "",  # Remove 'End of'
+        r"\n": " "  # Replace new lines with spaces to maintain continuity
+        r"\s*\[\[\s*": "",  # Remove placeholder brackets
+    }
+    
+    # Apply each replacement
+    for pattern, replacement in patterns.items():
+        clean_text = re.sub(pattern, replacement, display_text)
+
+    return text.strip()
     return clean_text
 
 
