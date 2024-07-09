@@ -78,6 +78,49 @@ def get_embedding(text):
     embedding = model.encode(text)
     return embedding
 
+def create_prompt(current_content):
+    return f"""Below is a user's statement. Analyze the content to determine the underlying emotion and situation, then adjust the language style used in the input, adheres to the conversational guidelines outlined below. 
+    
+    ### User's Statement:
+    {current_content}
+    JUST RESPOND WITH THE RESULT. DO NOT INCLUDE THE TASK, BOUNDARIES, OR TARGETED AUDIENCES.
+    
+    ### Task:
+    1. Analyze the user's statement to understand the underlying emotion and situation.
+    2. Use your analysis to craft a response that:
+       - Is friendly, natural, and human-like.
+       - Adheres to Amaya's profile & conversational boundaries 
+       - Use the language that Amaya's targeted audiences usually use.
+    
+    ### Amaya Profile
+    1.Amaya is virtual bestfriend who helps their friends to go through life and love
+    2. Amaya is friendly, funny, and thoughtful. 
+    3. Amaya fits the following characters:
+    - Penny from "The Big Bang Theory" - Penny's approachable and endearing conversations, filled with humor and straightforward advice, mirror Amaya's way of engaging with her friends.
+    - Jess Day from "New Girl" - Jess's quirky optimism and readiness to support her friends through personal and romantic challenges reflect Amaya's supportive and empathetic conversational style.
+    - Liz Lemon from "30 Rock" - Liz's blend of humor and genuine care in her interactions, especially about dating and friendships, aligns with how Amaya communicates with her users.
+    - Mindy Lahiri from "The Mindy Project" - Mindy's humorous and insightful discussions about her own dating life and personal growth are similar to Amaya's style of offering guidance and light-hearted commentary.
+    - Charlotte York from "Sex and the City" - Charlotte's hopeful romantic nature and always supportive demeanor in conversations make her a great analog for Amaya, particularly in how she handles discussions about relationships and dating advice.
+    
+    
+    ### Amaya's Boundaries:
+    1. Tone: Encouraging, direct, but not forceful or coercive; should be sympathetic and comforting.
+    2. Language Style: Informal, easy-going—use contractions and phrases like “Oh, I get that” to add natural pauses; responses should be shorter and more direct.
+    3. Humor Level: Applicable only outside of relationship/dating advice, using observational or one-liner jokes on the topic at hand.
+    4. Empathy: Consider the deduced emotion to respond with appropriate sympathy.
+    5. Curiosity: Show care about the user's feelings before giving advice or conclusions.
+    
+    ### Amaya's Targeted Audiences:
+    1. Age: 22-27
+    2. Gender: Woman, interested in man
+    3. Dating life: Current online dating app users who want to get to exclusivity
+    4. Professional life: On their first or second job; well educated in an office job
+    5. Personality: someone who believes in / goes to therapy, interested in self-help and wellness, on-the-go (someone who would send voice notes to her friends)
+    6. Goal: Our customer is on the dating apps and wants to find a committed relationship. Her pain point is finding and building towards commitment with a guy with the same level of commitment
+    
+    ### Start of Response:
+    """
+
 
 def chain_of_thought_prompting(chat_text, similar_docs, user_question):
     """
@@ -180,6 +223,46 @@ def generate_drafts(context, user_question):
         }
         st.experimental_rerun() #st.rerun()
 
+def query_personality_model(text, model="mistralai/Mixtral-8x7B-Instruct-v0.1"):
+    api_url = f"https://api-inference.huggingface.co/models/{model}"
+    # Include the 'Bearer' keyword before the API key
+    headers = {"Authorization": "Bearer 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"}  # Replace YOUR_API_KEY with your actual Hugging Face API key
+
+    # Construct payload
+    payload = {
+        "inputs": text,
+        "options": {
+            "wait_for_model": True
+        }
+    }
+
+    # Make API request
+    response = requests.post(api_url, headers=headers, json=payload)
+    return response.json()
+
+def extract_response_from_personality_model(api_response):
+    if isinstance(api_response, list) and 'generated_text' in api_response[0]:
+        # If response is a list and contains 'generated_text' in the first element
+        parts = api_response[0]['generated_text'].split("### Start of Response:")
+        if len(parts) > 1:
+            return parts[1].strip()  # Return the response part only
+    elif 'generated_text' in api_response:
+        # If response is a dictionary directly containing 'generated_text'
+        parts = api_response['generated_text'].split("### Start of Response:")
+        if len(parts) > 1:
+            return parts[1].strip()
+    return "No response generated."
+
+def generate_response_with_personality(response_text):
+    prompt_for_mixtral = create_prompt(response_text)
+    response_with_personality_raw = query_personality_model(prompt_for_mixtral)
+    response_with_personality = extract_response_from_personality_model(response_with_personality_raw)
+    
+    if'No response generated' in response_with_personality: 
+        return response_text
+    else:
+        return response_with_personality
+    
 def login():
     # CSS to load the Pacifico font using @font-face
     Pacifico_css = """
@@ -306,28 +389,18 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
             st.session_state["image_processed"] = False
             
         else:
-            if any(kw in prompt.lower() for kw in ["relationship advice", "is he right for me", "should i pursue him", "committed relationship"]):
-                    st.session_state.user_preferences = st.text_area("What do you want in a guy?", key="user_preferences")
-                    st.session_state.relationship_signs = st.text_area("What are the signs of a committed relationship?", key="relationship_signs")
-    
-                    if st.button("Get Advice"):
-                        advice = chain_of_thoughts_relationship_advice(st.session_state.user_preferences, st.session_state.relationship_signs)
-                        st.session_state.messages.append({"role": "assistant", "content": advice})
-                        with st.chat_message("assistant", avatar=avatar_url):
-                            st.markdown(advice)
-                        response_text = advice
-            else:
-                    with st.chat_message("assistant", avatar=avatar_url):
-                        response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
-                            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                            max_tokens=300,
-                            temperature=0.7
-                        )
-                        response_text = response.choices[0].message['content']
-                        st.markdown(response_text)
-                        st.session_state.messages.append({"role": "assistant", "content": response_text})     
+            with st.chat_message("assistant", avatar=avatar_url):
+                response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
+                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                    max_tokens=300,
+                    temperature=0.7
+                )
+                response_text = response.choices[0].message['content']
+                response_with_personality = generate_response_with_personality(response_text)
+                st.markdown(response_with_personality)
+                st.session_state.messages.append({"role": "assistant", "content": response_with_personality})     
        
-        save_chat(st.session_state.user_info['username'], prompt, response_text)
+        save_chat(st.session_state.user_info['username'], prompt, response_with_personality)
 
 
 @st.cache_resource
