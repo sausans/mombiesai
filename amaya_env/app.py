@@ -241,17 +241,29 @@ def extract_response_from_personality_model(api_response):
     if 'error' in api_response:
         return f"Error: {api_response['error']}"
     
+    # Fetching the appropriate generated text based on response structure
+    generated_text = None
     if isinstance(api_response, list) and 'generated_text' in api_response[0]:
-        parts = api_response[0]['generated_text'].split("### Start of Response:")
+        generated_text = api_response[0]['generated_text']
     elif 'generated_text' in api_response:
-        parts = api_response['generated_text'].split("### Start of Response:")
-    else:
-        return "No response generated."
+        generated_text = api_response['generated_text']
     
-    if len(parts) > 1:
-        return parts[1].strip()
+    if generated_text:
+        # Using the correct delimiter as found in your actual responses
+        parts = generated_text.split("### Start of Transformation:")
+        if len(parts) > 1:
+            # Further processing to remove unwanted trailing text like "User 0: Hey"
+            transformed_text = parts[1].strip()
+            # Remove any trailing user prompts by splitting on the pattern and taking the first part
+            cleaned_text = transformed_text.split('\nUser ')[0]
+            return cleaned_text
+        else:
+            return "Delimiter not found in response."
     else:
-        return "No response generated."
+        return "No generated text found in response."
+
+# This updated function now also removes any unwanted trailing user prompts or other text following the transformed message.
+
 
 def generate_response_with_personality(response_text):
     prompt_for_mixtral = create_prompt(response_text)
