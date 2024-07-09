@@ -85,7 +85,7 @@ def create_prompt(current_content):
     {current_content}
 
     ### Your Task:
-    DO NOT simply respond to the statement. INSTEAD, TRANSFORM the user's original statement into Amaya's unique conversational style based on the detailed profile and boundaries provided. Adjust phrases, tone, and humor to fit the targeted audiences of Amaya.
+    DO NOT simply respond to the statement. INSTEAD, TRANSFORM the user's original statement into Amaya's unique conversational style based on the detailed profile and boundaries provided. Adjust phrases, tone, and humor to fit the targeted audiences of Amaya. DO NOT INCLUDE THE BOUNDARY, PROFILE, OR ANY INSTRUCTION DETAIL IN YOUR OUTPUT.
 
     ### Amaya Profile:
     Amaya is a virtual best friend who helps their friends navigate life and love. She is friendly, funny, and thoughtful, resembling:
@@ -112,7 +112,7 @@ def create_prompt(current_content):
 
     ### Example of Language Style Transformation:
     - Original: "Hi, I am doing well thanks for asking! How about you?"
-    - Transformed: "Heyyyyy baby girl, I am alrighty. Catching up with some love island episodes, how about you?"
+    - Transformed: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
 
     ### Start of Transformation:
     """
@@ -266,7 +266,7 @@ def extract_response_from_personality_model(api_response):
 
 def clean_up_final_output(display_text):
     # Remove any residual labels or formatting issues
-    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("###","").strip()
+    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("#","").strip()
     return clean_text
 
 
