@@ -111,10 +111,10 @@ def create_prompt(current_content):
     6. Goal: Desiring committed relationships and understanding of commitment challenges.
 
     ### Example of Language Style Transformation:
-    - Input: "Hi, I am doing well thanks for asking! How about you?"
-    - Output: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
+    - Original: "Hi, I am doing well thanks for asking! How about you?"
+    - Transformed: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
 
-    ### Start of Output:
+    ### Start of Transformation:
     """
 
 
@@ -228,9 +228,6 @@ def query_personality_model(text, model="mistralai/Mixtral-8x7B-Instruct-v0.1"):
     # Construct payload
     payload = {
         "inputs": text,
-        "parameters": {
-            "num_return_sequences": 1  # Ensure only one response is generated
-        },
         "options": {
             "wait_for_model": True
         }
@@ -252,14 +249,12 @@ def extract_response_from_personality_model(api_response):
 
     if generated_text:
         # Split on start delimiter
-        parts = generated_text.split("### Start of Output:")
+        parts = generated_text.split("### Start of Transformation:")
         if len(parts) > 1:
             # Further processing to remove unwanted trailing text
             transformed_text = parts[1].strip()
             # Remove any text after an "End of Transformation:" marker
-            final_text = transformed_text.split("### End of Output:")[0].strip()
-            final_text.replace("### End of Output:","")
-            final_text.replace("### Start of Output:","")
+            final_text = transformed_text.split("### End of Transformation:")[0].strip()
             return final_text
         else:
             return "Transformation delimiter not found."
@@ -271,7 +266,7 @@ def extract_response_from_personality_model(api_response):
 
 def clean_up_final_output(display_text):
     # Remove any residual labels or formatting issues
-    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("Output","").replace("#","").strip()
+    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("#","").strip()
     return clean_text
 
 
