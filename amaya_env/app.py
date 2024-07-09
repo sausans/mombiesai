@@ -264,6 +264,11 @@ def extract_response_from_personality_model(api_response):
 
 # This updated function now also removes any unwanted trailing user prompts or other text following the transformed message.
 
+def clean_up_final_output(display_text):
+    # Remove any residual labels or formatting issues
+    clean_text = display_text.replace("Transformed:", "").replace("### End of Transformation:", "").replace("###","").strip()
+    return clean_text
+
 
 def generate_response_with_personality(response_text):
     prompt_for_mixtral = create_prompt(response_text)
@@ -277,7 +282,8 @@ def generate_response_with_personality(response_text):
         # Example of removing or modifying the output
         # Assuming "Transformed: " starts the actual response
         cleaned_response = response_with_personality.replace("Transformed: ", "").strip()
-        return cleaned_response
+        cleaned_response_with_personality = clean_up_final_output(cleaned_response)
+        return cleaned_response_with_personality
     
 def login():
     # CSS to load the Pacifico font using @font-face
