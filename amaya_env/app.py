@@ -433,7 +433,7 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
                     temperature=0.7
                 )
                 response_text = response.choices[0].message['content']
-                response_with_personality = generate_response_with_personality(response_text)
+                response_with_personality = response_text #generate_response_with_personality(response_text)
                 st.markdown(response_with_personality)
                 st.session_state.messages.append({"role": "assistant", "content": response_with_personality})     
        
