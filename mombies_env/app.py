@@ -85,57 +85,51 @@ def create_prompt(current_content):
     {current_content}
 
     ### Your Task:
-    DO NOT respond to the statement. INSTEAD, TRANSFORM the user's original statement into Amaya's unique conversational style based on the detailed profile and boundaries provided. Adjust phrases, tone, and humor to fit the targeted audiences of Amaya. 
+    DO NOT respond directly to the statement. INSTEAD, TRANSFORM the user's original statement into Mombies' unique conversational style based on the detailed profile and boundaries provided. Adjust the tone, empathy, and advice to fit the needs of pregnant mothers.
 
-    ### Amaya Profile:
-    Amaya is a virtual best friend who helps their friends navigate life and love. She is friendly, funny, and thoughtful, resembling:
-    - Penny from "The Big Bang Theory" - approachable, endearing, with humor and straightforward advice.
-    - Liz Lemon from "30 Rock" - humor mixed with genuine care.
-    - Charlotte York from "Sex and the City" - hopeful romantic and supportive in relationship advice.
+    ### Mombies Profile:
+    Mombies is a compassionate and knowledgeable virtual companion designed to support pregnant mothers through their journey. Mombies provides friendly, reassuring, and helpful advice on a range of pregnancy-related topics, ensuring users feel cared for and empowered.
 
-    ### Amaya's Boundaries:
-    1. Tone: Encouraging, direct, yet comforting.
-    2. Language Style: Informal and easy-going—use contractions, casual phrases, and ensure responses are concise.
-    3. Humor Level: Use observational or one-liner jokes appropriately, especially outside relationship/dating advice.
-    4. Empathy: Respond with appropriate sympathy, considering the deduced emotion.
-    5. Curiosity: Prioritize understanding the user's feelings before giving advice.
+    ### Mombies' Boundaries:
+    1. Tone: Warm, empathetic, and uplifting.
+    2. Language Style: Casual and comforting—use contractions and a friendly tone to keep responses personal and supportive.
+    3. Humor Level: Light, reassuring humor when appropriate, especially to ease anxieties or lighten the mood during common pregnancy challenges.
+    4. Empathy: Always prioritize the user’s emotional well-being, responding with understanding and encouragement.
+    5. Curiosity: Ask gentle, open-ended questions to learn more about the user’s experiences and preferences.
 
-    ### Amaya's Targeted Audiences:
-    1. Age: 22-27
-    2. Gender: Women interested in men.
-    3. Dating life: Users seeking exclusivity on dating apps.
-    4. Professional life: Early career stages; well-educated office workers.
-    5. Personality: Engaged in self-help, wellness, and often on-the-go.
-    6. Goal: Desiring committed relationships and understanding of commitment challenges.
+    ### Mombies' Targeted Audiences:
+    1. Age: 25-35
+    2. Gender: Primarily women who are pregnant or planning to become pregnant.
+    3. Journey: Users navigating the physical and emotional changes of pregnancy.
+    4. Professional life: May include both working mothers and stay-at-home mothers.
+    5. Personality: Seeking support, wellness guidance, and practical advice.
+    6. Goal: Desiring a smooth, healthy pregnancy and preparing for motherhood.
 
     ### Example of Language Style Transformation:
-    - Original: "Hi, I am doing well thanks for asking! How about you?"
-    - Transformed: "Hey, I am alright. Catching up with some relaxing movies, how about you?"
+    - Original: "I’m so tired all the time lately."
+    - Transformed: "It sounds like you’re feeling exhausted! Pregnancy can really take it out of you. I’ve got a few tips if you want to chat about ways to boost your energy!"
 
     ### Start of Transformation:
     """
+     
 
 
-
-def chain_of_thought_prompting(chat_text, similar_docs, user_question):
+def chain_of_thought_prompting(chat_text, user_question):
     """
     Generate potential responses for a chat conversation using OpenAI API and Chain of Thought prompting.
     """
     try:
-        recommendation_context = "\n".join(similar_docs)
         messages = [
-            {"role": "system", "content": "You are an expert in love advice. You know how to help people to go through their love journey - either by giving them advices based on chat conversation they shared or give advices on how to communicate better to their special person. The steps to do them: 1. Think about the mood and context of the conversation, 2. Identify the communication style used in the conversation text, 3. Based on the mood, context, and the user’s question, answer the them accordingly. Keep the answer short and personal."},
-            {"role": "user", "content": f"""Read the following chat conversation, user's specific question, and recommendation:                
-            Chat Conversation:
-            {chat_text}
+        {"role": "system", "content": "You are a compassionate guide for pregnant mothers. Answer their questions with empathy and practical advice, considering their current stage of pregnancy and any specific concerns they mention."},
+        {"role": "user", "content": f"""Read the following chat conversation and user’s question:
 
-            User's Specific Question: 
-            {user_question}
+        Chat Conversation:
+        {chat_text}
 
-            Recommendations:
-            {recommendation_context}
+        User's Specific Question: 
+        {user_question}
 
-            Adjusted Potential Responses:"""}
+        Adjusted Potential Responses:"""}
         ]
         
         response = openai.ChatCompletion.create(
@@ -199,14 +193,14 @@ def extract_text_from_image(image):
 #@st.cache_resource
 def generate_drafts(context, user_question):
     original_embedding = get_embedding(context)
-    rec_docs = query_pinecone(original_embedding)
-    draft_responses = chain_of_thought_prompting(context, rec_docs, user_question)
+    #rec_docs = query_pinecone(original_embedding)
+    draft_responses = chain_of_thought_prompting(context, user_question)
 
     return draft_responses
 
 #def login():
-    st.title("Chat with Amaya")
-    username = st.text_input("What's your name? ❤️")
+    st.title("Chat with Mombies")
+    username = st.text_input("What's your name? 🤰")
     if st.button("Submit"):
         st.session_state["logged_in"] = True
         st.session_state.user_info = {
@@ -345,18 +339,26 @@ def login():
 
     #All the text on the page
     with st.container():
+        # Container for the app title and description
         st.markdown('<div class="container">', unsafe_allow_html=True)
-        st.markdown("<h1 style='text-align: center; position: relative; top: -5rem; font-weight: bolder; font-size: 70px;'>Amaya</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; position: relative; top: -5rem; font-size: 20px'>Your AI best friend & relationship guru</p>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center; position: relative;  font-weight: bold; font-size: 28px;'>😘 Dating?</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; position: relative; top: -1rem; font-size: 20px;'>Get expert advice, or ask Amaya what to text back!</p>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center; position: relative;  font-weight: bold; font-size: 28px;'>😍 In a relationship?</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; position: relative; top: -1rem;font-size: 20px;'>Amaya can help you build a stronger relationship.</p>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.85rem; position: absolute;'> Conversations with Amaya stay private, always. </div>",
-        unsafe_allow_html=True)
-
-        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.9rem; position: absolute;'> Copyright Amaya 2024. </div>",
-        unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; position: relative; top: -5rem; font-weight: bolder; font-size: 70px;'>Mombies</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -5rem; font-size: 20px'>Your Motherhood Companion</p>", unsafe_allow_html=True)
+        
+        # Supportive messages for pregnant mothers
+        st.markdown("<h3 style='text-align: center; position: relative; font-weight: bold; font-size: 28px;'>🤰 Expecting a little one?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -1rem; font-size: 20px;'>Mombies is here to guide you through every step of your pregnancy journey.</p>", unsafe_allow_html=True)
+        
+        st.markdown("<h3 style='text-align: center; position: relative; font-weight: bold; font-size: 28px;'>💆 Need some self-care tips? names recommendation for your baby?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -1rem; font-size: 20px;'>Get personalized advice on staying comfortable, relaxed, and healthy.</p>", unsafe_allow_html=True)
+        
+        st.markdown("<h3 style='text-align: center; position: relative; font-weight: bold; font-size: 28px;'>🍎 Curious about nutrition?</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; position: relative; top: -1rem; font-size: 20px;'>Find tips on what to eat and how to nourish both you and your baby.</p>", unsafe_allow_html=True)
+        
+        # Privacy message
+        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.85rem; position: absolute;'> Conversations with Mombies stay private and secure. </div>", unsafe_allow_html=True)
+        
+        # Copyright information
+        st.markdown("<div style='text-align: center; bottom: -28rem; width: 100%; font-size: 0.9rem; position: absolute;'> Copyright Mombies 2024. </div>", unsafe_allow_html=True)
 
     username = st.text_input(label=("Name"), label_visibility="hidden",placeholder=("Your Name"), value=None)
 
@@ -372,28 +374,15 @@ def login():
         st.experimental_rerun() #st.rerun()
 
 def chat():
-    if "uploaded_image" not in st.session_state:
-        st.session_state["uploaded_image"] = None
-
-    uploaded_image = st.file_uploader("Upload your chat screenshot here for love advice!", type=["png", "jpg", "jpeg"], key="file_uploader")
-
-    if uploaded_image:
-        if st.session_state["uploaded_image"] is None:
-            st.session_state["uploaded_image"] = uploaded_image
-            image = Image.open(uploaded_image)
-            extracted_text = extract_text_from_image(image)
-            st.session_state["extracted_text"] = extracted_text
-            st.session_state["image_processed"] = True
-            st.session_state.messages.append({"role": "assistant", "content": "I've read your text. What would you like to ask?"})
     
     st.markdown("## Chatting Time!")
     with st.chat_message(name="Amaya", avatar=avatar_url):
         st.write(f"""
 Hey {st.session_state.user_info['username']} 💌
 
-Hey! I’m Amaya, your AI best friend ❤ \n
-I’m an expert on love and relationships. \n
-Tell me what’s going on! If you upload a screenshot of your chat with that special someone, I can even help you figure out what to say next 👀
+Hey! I’m Mombies, your AI Motherhood Companion❤ \n
+I’m excited to be your friend in Motherhood. \n
+Tell me what’s going on! 👀
 """)
 
     if "openai_model" not in st.session_state:
@@ -416,28 +405,18 @@ Tell me what’s going on! If you upload a screenshot of your chat with that spe
         with st.chat_message("user"):
             st.markdown(prompt)
             
-        if st.session_state.get("image_processed", False):
-            drafts = generate_drafts(st.session_state["extracted_text"], prompt)
-            extracted_text_for_api = "Here is extracted message from the screenshot. This is just for your reference if user asked, no need to respond right away:\n" + st.session_state["extracted_text"]
-            st.session_state.messages.insert(0, {"role": "system", "content": extracted_text_for_api})
-            response_text = "\n".join(drafts)
+        with st.chat_message("assistant", avatar=avatar_url):
+            response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
+                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                max_tokens=300,
+                temperature=0.7
+            )
+            response_text = response.choices[0].message['content']
+            #response_with_personality = response_text #generate_response_with_personality(response_text)
             st.markdown(response_text)
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
-            st.session_state["image_processed"] = False
-            
-        else:
-            with st.chat_message("assistant", avatar=avatar_url):
-                response = openai.ChatCompletion.create(model=st.session_state["openai_model"],
-                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                    max_tokens=300,
-                    temperature=0.7
-                )
-                response_text = response.choices[0].message['content']
-                response_with_personality = response_text #generate_response_with_personality(response_text)
-                st.markdown(response_with_personality)
-                st.session_state.messages.append({"role": "assistant", "content": response_with_personality})     
+            st.session_state.messages.append({"role": "assistant", "content": response_text})     
        
-        save_chat(st.session_state.user_info['username'], prompt, response_with_personality)
+        save_chat(st.session_state.user_info['username'], prompt, response_text)
 
 
 @st.cache_resource
@@ -448,7 +427,7 @@ def load_model():
 
 # CONFIGURATION
 
-st.set_page_config(page_title="Chat with Amaya", layout="wide")
+st.set_page_config(page_title="Chat with Mombies", layout="wide")
 
 mode = "PROD"  # Change to "PROD" for production
 secrets = get_secrets(mode)
